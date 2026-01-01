@@ -12,7 +12,7 @@ def download_youtube_audio(youtube_url, output_path):
         'outtmpl': 'temp_audio.%(ext)s',
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
+            'preferredcodec': 'wav',
             'preferredquality': '192',
         }],
     }
