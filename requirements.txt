@@ -2,3 +2,5 @@ speech-to-text
 ffmpeg-python
 yt_dlp
 moviepy
+SpeechRecognition
+pydub
