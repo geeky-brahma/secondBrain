@@ -22,8 +22,8 @@ def download_youtube_audio(youtube_url, output_path):
         ydl.download([youtube_url])
     
     # Rename the output file
-    if os.path.exists('temp_audio.mp3'):
-        os.rename('temp_audio.mp3', output_path)
+    if os.path.exists('../temp/temp_audio.wav'):
+        os.rename('../temp/temp_audio.wav', output_path)
 
 youtube_url = "https://youtube.com/watch?si=_SXsFI8fqcwngzXm&v=j1lTvjmOJbQ"
 
@@ -31,5 +31,5 @@ youtube_url = "https://youtube.com/watch?si=_SXsFI8fqcwngzXm&v=j1lTvjmOJbQ"
 # youtube_url = str(input("Enter the URL of the video you want to 
 #               download: \n>>"))
 
-output_path = 'output_file.mp3'
+output_path = '../temp/temp_audio.wav'
 download_youtube_audio(youtube_url, output_path)

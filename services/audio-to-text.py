@@ -4,8 +4,10 @@ import speech_recognition as sr
 from pydub import AudioSegment  # pip install pydub
 
 
-AUDIO_IN = "temp_audio.wav"
-WAV_MONO = "temp_audio_mono.wav"
+# Source audio to transcribe; expected to be a raw WAV from the downloader step
+AUDIO_IN = "../temp/temp_audio.wav"
+# Normalized mono 16k PCM file used for recognition
+WAV_MONO = "../temp/temp_audio_mono.wav"
 CHUNK_LEN_MS = 55_000  # under 60s
 
 # Ensure correct format: mono, 16 kHz, 16-bit PCM
@@ -31,3 +33,5 @@ with sr.AudioFile(WAV_MONO) as source:
 
 print("\nThe resultant text from video is:\n")
 print("\n".join(transcripts))
+with open("../output/transcript.txt", "w", encoding="utf-8") as f:
+    f.write("\n".join(transcripts))
