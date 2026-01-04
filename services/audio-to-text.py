@@ -2,7 +2,7 @@ import os
 import math
 import speech_recognition as sr
 from pydub import AudioSegment  # pip install pydub
-
+# from deepmultilingualpunctuation import PunctuationModel
 
 # Source audio to transcribe; expected to be a raw WAV from the downloader step
 AUDIO_IN = "../temp/temp_audio.wav"
@@ -31,7 +31,25 @@ with sr.AudioFile(WAV_MONO) as source:
         except sr.UnknownValueError:
             print(f"Chunk {i//CHUNK_LEN_MS} not understood")
 
-print("\nThe resultant text from video is:\n")
-print("\n".join(transcripts))
+# print("\nThe resultant text from video is:\n")
+# print("\n".join(transcripts))
+# transcripts = [t for t in transcripts if t.strip()]
+# print(transcripts)
+# with open("../output/transcript.txt", "w", encoding="utf-8") as f:
+#     # Preserve chunk boundaries with blank lines instead of a single long line
+#     f.write("\n\n".join(transcripts))
+
+
+text = " ".join(transcripts)
+def chunk_text(text, words_per_line=15):
+    words = text.split()
+    lines = []
+    for i in range(0, len(words), words_per_line):
+        lines.append(" ".join(words[i:i+words_per_line]) + ".")
+    return "\n".join(lines)
+
+final_text = chunk_text(" ".join(transcripts), 15)
+print(final_text)
 with open("../output/transcript.txt", "w", encoding="utf-8") as f:
-    f.write("\n".join(transcripts))
+    f.write(final_text)
+
