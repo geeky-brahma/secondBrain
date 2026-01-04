@@ -18,6 +18,8 @@ def get_page_contents(url):
 url = 'https://brightdata.com/blog/how-tos/beautiful-soup-web-scraping'
 
 page_html = get_page_contents(url)
+if not page_html:
+    raise SystemExit("Failed to fetch page content")
 
 # 2. Parse the HTML content using BeautifulSoup
 # .content is preferred over .text for better character encoding handling
@@ -28,11 +30,14 @@ main = soup.find('main') or soup.find('article') or soup.find(id='content')
 if main:
     soup = BeautifulSoup(str(main), 'html.parser')
 
-# 3. Optional: Print the formatted HTML
-# print(soup.prettify())
+# 3. Extract plain text only (no HTML tags)
+text = soup.get_text(separator="\n", strip=True)
+lines = [line.strip() for line in text.splitlines() if line.strip()]
+plain_text = "\n".join(lines)
 
-with open("../output/scraped_page.html", "w", encoding="utf-8") as f:
-    f.write(soup.prettify())
+# 4. Save text to a file
+with open("../output/scraped_page.txt", "w", encoding="utf-8") as f:
+    f.write(plain_text)
 
 
 
