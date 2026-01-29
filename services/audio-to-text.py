@@ -3,53 +3,57 @@ import math
 import speech_recognition as sr
 from pydub import AudioSegment  # pip install pydub
 # from deepmultilingualpunctuation import PunctuationModel
+def transcribe_audio(audio_input_path: str) -> str:
+    # Source audio to transcribe; expected to be a raw WAV from the downloader step
+    # AUDIO_IN = "../temp/temp_audio.wav"
+    AUDIO_IN = audio_input_path
+    # Normalized mono 16k PCM file used for recognition
+    WAV_MONO = "../temp/temp_audio_mono.wav"
+    CHUNK_LEN_MS = 55_000  # under 60s
 
-# Source audio to transcribe; expected to be a raw WAV from the downloader step
-AUDIO_IN = "../temp/temp_audio.wav"
-# Normalized mono 16k PCM file used for recognition
-WAV_MONO = "../temp/temp_audio_mono.wav"
-CHUNK_LEN_MS = 55_000  # under 60s
+    # Ensure correct format: mono, 16 kHz, 16-bit PCM
+    audio = AudioSegment.from_file(AUDIO_IN)
+    audio = audio.set_frame_rate(16000).set_channels(1).set_sample_width(2)
+    audio.export(WAV_MONO, format="wav")
 
-# Ensure correct format: mono, 16 kHz, 16-bit PCM
-audio = AudioSegment.from_file(AUDIO_IN)
-audio = audio.set_frame_rate(16000).set_channels(1).set_sample_width(2)
-audio.export(WAV_MONO, format="wav")
+    r = sr.Recognizer()
+    transcripts = []
 
-r = sr.Recognizer()
-transcripts = []
+    with sr.AudioFile(WAV_MONO) as source:
+        duration_ms = len(audio)
+        for i in range(0, duration_ms, CHUNK_LEN_MS):
+            source.DURATION = min(CHUNK_LEN_MS / 1000, duration_ms / 1000 - i / 1000)
+            source.SEEK = i / 1000
+            data = r.record(source, duration=source.DURATION, offset=source.SEEK)
+            try:
+                transcripts.append(r.recognize_google(data))
+            except sr.RequestError as e:
+                print(f"Chunk {i//CHUNK_LEN_MS} failed: {e}")
+            except sr.UnknownValueError:
+                print(f"Chunk {i//CHUNK_LEN_MS} not understood")
 
-with sr.AudioFile(WAV_MONO) as source:
-    duration_ms = len(audio)
-    for i in range(0, duration_ms, CHUNK_LEN_MS):
-        source.DURATION = min(CHUNK_LEN_MS / 1000, duration_ms / 1000 - i / 1000)
-        source.SEEK = i / 1000
-        data = r.record(source, duration=source.DURATION, offset=source.SEEK)
-        try:
-            transcripts.append(r.recognize_google(data))
-        except sr.RequestError as e:
-            print(f"Chunk {i//CHUNK_LEN_MS} failed: {e}")
-        except sr.UnknownValueError:
-            print(f"Chunk {i//CHUNK_LEN_MS} not understood")
+    # print("\nThe resultant text from video is:\n")
+    # print("\n".join(transcripts))
+    # transcripts = [t for t in transcripts if t.strip()]
+    # print(transcripts)
+    # with open("../output/transcript.txt", "w", encoding="utf-8") as f:
+    #     # Preserve chunk boundaries with blank lines instead of a single long line
+    #     f.write("\n\n".join(transcripts))
 
-# print("\nThe resultant text from video is:\n")
-# print("\n".join(transcripts))
-# transcripts = [t for t in transcripts if t.strip()]
-# print(transcripts)
+
+    text = " ".join(transcripts)
+    def chunk_text(text, words_per_line=15):
+        words = text.split()
+        lines = []
+        for i in range(0, len(words), words_per_line):
+            lines.append(" ".join(words[i:i+words_per_line]) + ".")
+        return "\n".join(lines)
+
+    final_text = chunk_text(" ".join(transcripts), 15)
+    return final_text
+
+
+# print(final_text)
 # with open("../output/transcript.txt", "w", encoding="utf-8") as f:
-#     # Preserve chunk boundaries with blank lines instead of a single long line
-#     f.write("\n\n".join(transcripts))
-
-
-text = " ".join(transcripts)
-def chunk_text(text, words_per_line=15):
-    words = text.split()
-    lines = []
-    for i in range(0, len(words), words_per_line):
-        lines.append(" ".join(words[i:i+words_per_line]) + ".")
-    return "\n".join(lines)
-
-final_text = chunk_text(" ".join(transcripts), 15)
-print(final_text)
-with open("../output/transcript.txt", "w", encoding="utf-8") as f:
-    f.write(final_text)
+#     f.write(final_text)
 
