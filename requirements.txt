@@ -4,3 +4,12 @@ yt_dlp
 moviepy
 SpeechRecognition
 pydub
+Flask
+requests
+python-telegram-bot==20.3
+chromadb
+faiss-cpu
+python-dotenv
+beautifulsoup4
+pdfplumber
+PyPDF2

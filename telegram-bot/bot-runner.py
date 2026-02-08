@@ -34,9 +34,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         for entity in message.entities:
             if entity.type == "url":
                 url = message.text[entity.offset:entity.offset + entity.length]
+                if url.contains("youtube.com") or url.contains("youtu.be"):
+                    print(f"YOUTUBE LINK RECEIVED: {url}")
+                    response = requests.post(f"{URL}/store_youtube_info", data={"url": url})
+                    print("Response from backend:", response.text)
+                    await message.reply_text(f'YouTube link received and info extracted: {url}')
                 print(f"LINK RECEIVED: {url}")
                 await message.reply_text(f'Link received: {url}')
-                return
+                
     
     # Handle text
     if message.text:
@@ -48,6 +53,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     # Handle photos
     elif message.photo:
         if message.caption:
+            response = requests.post(f"{URL}/store_image", data={"image_path": "", "caption": message.caption})
             print(f"PHOTO WITH CAPTION RECEIVED: {len(message.photo)} photo(s) with caption: {message.caption}")
             await message.reply_text('Photo received and saved!')
         else:
@@ -58,10 +64,13 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     # Handle audio
     elif message.audio:
         print(f"AUDIO RECEIVED: {message.audio.file_name}")
+        response = requests.post(f"{URL}/store_audio", data={"audio_path": ""})
+        print("Response from backend:", response.text)
         await message.reply_text(f'Audio received: {message.audio.file_name}')
     
     # Handle files/documents
     elif message.document:
+        response = requests.post(f"{URL}/store_pdf", data={"pdf_path": ""})
         print(f"FILE RECEIVED: {message.document.file_name}")
         await message.reply_text(f'File received: {message.document.file_name}')
 
