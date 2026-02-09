@@ -2,7 +2,7 @@ import json
 import yt_dlp
 
 def extract_yt_info(url: str) -> dict:
-    URL = "https://youtu.be/pDojlA3SCFs?si=TefMEijHAsE9aINE"
+    URL = url
     # URL = "https://youtube.com/watch?si=_SXsFI8fqcwngzXm&v=j1lTvjmOJbQ"
 
     # ℹ️ See help(yt_dlp.YoutubeDL) for a list of available options and public functions
@@ -10,7 +10,7 @@ def extract_yt_info(url: str) -> dict:
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(URL, download=False)
         data = json.dumps(ydl.sanitize_info(info))
-        print("Video Information JSON:", data)
+        # print("Video Information JSON:", data)
         channel_name = json.loads(data)["channel"] if "channel" in data else "Unknown"
         # print("Channel Name:", channel_name)
         title = json.loads(data)["title"] if "title" in data else "Unknown"
@@ -19,8 +19,9 @@ def extract_yt_info(url: str) -> dict:
         # print("Description:", description)
         # tags = json.loads(data)["tags"] if "tags" in data else []
         # print("Tags:", tags)
-        data = {"channel": channel_name, "title": title, "description": description}
-        print("Extracted Data:", data)
+        # data = {"channel": channel_name, "title": title, "description": description}
+        # print("Extracted Data:", data)
+        data = channel_name + " " + title + " " + description
         return data
         
 

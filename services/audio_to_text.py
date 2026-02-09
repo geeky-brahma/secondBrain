@@ -4,12 +4,22 @@ import speech_recognition as sr
 from pydub import AudioSegment  # pip install pydub
 # from deepmultilingualpunctuation import PunctuationModel
 def transcribe_audio(audio_input_path: str) -> str:
-    # Source audio to transcribe; expected to be a raw WAV from the downloader step
-    # AUDIO_IN = "../temp/temp_audio.wav"
-    AUDIO_IN = audio_input_path
+    # Source audio to transcribe; expected to be a raw audio file from the downloader step
+    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    audio_dir = os.path.join(repo_root, "telegram_bot", "temp", "telegram_audio")
+    if os.path.isabs(audio_input_path) and os.path.exists(audio_input_path):
+        AUDIO_IN = audio_input_path
+    else:
+        AUDIO_IN = os.path.join(audio_dir, audio_input_path)
+    # "C:\Users\ASUS\Documents\secondBrain\telegram_bot\temp\telegram_audio\AgADqh8AAjHkUVQ_6519130378_20260209_220706.mp3"
     # Normalized mono 16k PCM file used for recognition
-    WAV_MONO = "../temp/temp_audio_mono.wav"
+    WAV_MONO = os.path.join(repo_root, "temp", "temp_audio_mono.wav")
     CHUNK_LEN_MS = 55_000  # under 60s
+
+    if not os.path.exists(AUDIO_IN):
+        raise FileNotFoundError(
+            f"Audio file not found at '{AUDIO_IN}'. Expected under '{audio_dir}'."
+        )
 
     # Ensure correct format: mono, 16 kHz, 16-bit PCM
     audio = AudioSegment.from_file(AUDIO_IN)
@@ -48,8 +58,9 @@ def transcribe_audio(audio_input_path: str) -> str:
         for i in range(0, len(words), words_per_line):
             lines.append(" ".join(words[i:i+words_per_line]) + ".")
         return "\n".join(lines)
-
+    
     final_text = chunk_text(" ".join(transcripts), 15)
+    os.remove(WAV_MONO)
     return final_text
 
 
